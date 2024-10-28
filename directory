@@ -1,0 +1,224 @@
+package javaapplication4;
+
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.Scanner;
+
+public class PhoneDirectory {
+    static class Contact {
+        private String wName, tName;
+        private String[] phoneNum;
+        private String affiliation;
+        private String occupation;
+        private String note = "";
+        private GregorianCalendar dob;
+        private boolean blocked;
+
+        // Default constructor
+        public Contact() {
+            this.blocked = false;
+        }
+
+        // Parameterized constructor
+        public Contact(String wName, String tName, String[] phoneNum, String affiliation,
+                       String occupation, String note, GregorianCalendar dob) {
+            this.wName = wName;
+            this.tName = tName;
+            this.phoneNum = phoneNum;
+            this.affiliation = affiliation;
+            this.occupation = occupation;
+            this.note = note;
+            this.dob = dob;
+            this.blocked = false;
+        }
+
+        // Setters
+        public void setwName(String wName) { this.wName = wName; }
+        public void settName(String tName) { this.tName = tName; }
+        public void setPhoneNum(String[] phoneNum) { this.phoneNum = phoneNum; }
+        public void setAffiliation(String affiliation) { this.affiliation = affiliation; }
+        public void setOccupation(String occupation) { this.occupation = occupation; }
+        public void setNote(String note) { this.note = note; }
+        public void setDob(GregorianCalendar dob) { this.dob = dob; }
+        public void setBlocked(boolean blocked) { this.blocked = blocked; }
+
+        // Getters
+        public String getwName() { return wName; }
+        public String gettName() { return tName; }
+        public String[] getPhoneNum() { return phoneNum; }
+        public String getAffiliation() { return affiliation; }
+        public String getOccupation() { return occupation; }
+        public String getNote() { return note; }
+        public GregorianCalendar getDob() { return dob; }
+        public boolean isBlocked() { return blocked; }
+
+        // Replace a phone number
+        public void replaceNumber(String oldNum, String newNum) {
+            for (int i = 0; i < phoneNum.length; i++) {
+                if (phoneNum[i].equals(oldNum)) {
+                    phoneNum[i] = newNum;
+                    return;
+                }
+            }
+        }
+
+        // toString Method
+        @Override
+        public String toString() {
+            return "Contact [Name=" + wName + " " + tName + ", Phone Numbers=" +
+                   String.join(", ", phoneNum) + ", Affiliation=" + affiliation +
+                   ", Occupation=" + occupation + ", DOB=" + dob.getTime() +
+                   ", Blocked=" + blocked + "]";
+        }
+    }
+
+    static class Directory {
+        private ArrayList<Contact> directory;
+
+        // Default constructor
+        public Directory() {
+            directory = new ArrayList<>();
+        }
+
+        // Method to add a new Contact
+        public void addContact(Contact c) {
+            directory.add(c);
+        }
+
+        // Overloaded method to add contact using details
+        public void addContact(String f, String l, String[] p, String a, String o, String n, GregorianCalendar dob) {
+            Contact newContact = new Contact(f, l, p, a, o, n, dob);
+            addContact(newContact);
+        }
+
+        // Search for a contact by first name
+        public Contact searchContact(String wName) {
+            for (Contact c : directory) {
+                if (c.getwName().equalsIgnoreCase(wName)) {
+                    return c;
+                }
+            }
+            return null;
+        }
+
+        // Delete a contact by first name
+        public boolean deleteContact(String wName) {
+            for (Contact c : directory) {
+                if (c.getwName().equalsIgnoreCase(wName)) {
+                    directory.remove(c);
+                    return true; // Deleted
+                }
+            }
+            return false;         }
+
+        // toString Method
+        @Override
+        public String toString() {
+            StringBuilder result = new StringBuilder("Directory:\n");
+            for (Contact c : directory) {
+                result.append(c.toString()).append("\n");
+            }
+            return result.toString();
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Directory directory = new Directory();
+
+        // Menu-driven interaction
+        while (true) {
+            System.out.println("\nPhone Directory Menu:");
+            System.out.println("1. Add Contact");
+            System.out.println("2. Search Contact");
+            System.out.println("3. Delete a Contact");
+            System.out.println("4. Replace a Number");
+            System.out.println("5. Display All");
+            System.out.println("6. Block a Number");
+            System.out.println("7. Exit");
+            System.out.print("Choose an option: ");
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1: // Add Contact
+                    System.out.print("Enter first name: ");
+                    String wName = sc.nextLine();
+                    System.out.print("Enter last name: ");
+                    String tName = sc.nextLine();
+                    System.out.print("Enter phone numbers (comma-separated): ");
+                    String[] phoneNumbers = sc.nextLine().split(",");
+                    System.out.print("Enter affiliation: ");
+                    String affiliation = sc.nextLine();
+                    System.out.print("Enter occupation: ");
+                    String occupation = sc.nextLine();
+                    System.out.print("Enter note: ");
+                    String note = sc.nextLine();
+                    System.out.print("Enter DOB (YYYY MM DD): ");
+                    int year = sc.nextInt();
+                    int month = sc.nextInt() - 1; // Month is 0-indexed
+                    int day = sc.nextInt();
+                    GregorianCalendar dob = new GregorianCalendar(year, month, day);
+
+                    directory.addContact(new Contact(wName, tName, phoneNumbers, affiliation, occupation, note, dob));
+                    break;
+
+                case 2: // Search Contact
+                    System.out.print("Enter first name to search: ");
+                    Contact contactFound = directory.searchContact(sc.nextLine());
+                    System.out.println(contactFound != null ? contactFound : "Contact not found.");
+                    break;
+
+                case 3: // Delete a Contact
+                    System.out.print("Enter first name to delete: ");
+                    System.out.println(directory.deleteContact(sc.nextLine()) ? "Contact deleted." : "Contact not found.");
+                    break;
+
+                case 4: // Replace a Number
+                    System.out.print("Enter first name of contact: ");
+                    Contact replaceContact = directory.searchContact(sc.nextLine());
+                    if (replaceContact != null) {
+                        System.out.print("Enter old number: ");
+                        String oldNum = sc.nextLine();
+                        System.out.print("Enter new number: ");
+                        String newNum = sc.nextLine();
+                        replaceContact.replaceNumber(oldNum, newNum);
+                        System.out.println("Number replaced.");
+                    } else {
+                        System.out.println("Contact not found.");
+                    }
+                    break;
+
+                case 5: // Display All
+                    System.out.println(directory);
+                    break;
+
+                case 6: // Block a Number
+                    System.out.print("Enter first name to block: ");
+                    Contact blockContact = directory.searchContact(sc.nextLine());
+                    if (blockContact != null) {
+                        blockContact.setBlocked(true);
+                        System.out.println("Contact blocked.");
+                    } else {
+                        System.out.println("Contact not found.");
+                    }
+                    break;
+
+                case 7: 
+                    sc.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
